@@ -22,6 +22,7 @@
 		echo '<div class="nerzedzie">'.$response[1].'połoażenie półka'.$response[2].'</div>';  
 	}
 	
+	
 	function menu_uz()
 	{
 		echo '<div class="menu">';	
@@ -35,7 +36,7 @@
 	function menu_prac()
 	{
 		echo '<div class="menu">';	
-		echo przycisk_menu('index.php?action=klient', 'zdefiniuj klienta');
+		echo przycisk_menu('index.php?action=klient', 'klient');
 		echo przycisk_menu('index.php?action=szukaj', 'szukaj narzedzia');
 		echo przycisk_menu('index.php?action=pokaz_wypozyczenia', 'pokaż wypożyczenia');
 		echo przycisk_menu('index.php?action=wyloguj', 'wyloguj');
@@ -52,5 +53,12 @@
 		echo '<div>';
 	}
 	
+	function uz_wypozyczone($rekord)
+	{
+		//pole 2 nazwa narzedzia 
+		//pole 3 data wypozyczenia
+		echo '<div class="lista1">'.$rekord[2].'</div>';
+		echo '<div class="lista2">'.$rekord[3].'</div>'; 
+	}
 	
 ?>

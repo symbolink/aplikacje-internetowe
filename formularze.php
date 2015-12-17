@@ -16,9 +16,9 @@
 		echo "<form action=\"".$target."\" method=\"".$method."\">";
 	}
 	
-	function form_stop($submitname="")
+	function form_stop($submitname="",$class="normal")
 	{
-		echo "<input type=\"submit\" value=\"".$submitname."\"/></form>";
+		echo '<input type="submit" class="'.$class.'"  value="'.$submitname.'"/></form>';
 	}
 	
 	// function input_add($type,$name,$label="",$value="")
@@ -115,11 +115,11 @@ class form_input extends form_element
 	}
 	public function disp_filed()
 	{
-		echo '<input id="'.$this->get_id().'"';
-		echo 'type="'.$this->type.'"';
-		echo 'name="'.$this->get_name().'"';
+		echo '<input id="'.$this->get_id().'" ';
+		echo 'type="'.$this->type.'" ';
+		echo 'name="'.$this->get_name().'" ';
 		$val=$this->get_value();
-		if($val!=null){echo'value="'.$val.'"';}
+		if($val!=null){echo'value="'.$val.'" ';}
 		echo '/>';
 	}
 	
@@ -217,10 +217,51 @@ function form_pracownik_wybierz_klienta()
 {
 	$tab=array();
 	$pole= new form_input;
-	$pole->set_params('klient',in_type::text,'klient','klent',null, null);
+	$pole->set_params('klient',in_type::text,'klient','klient',null, null);
 	$tab[]=$pole;
 	return $tab;	
 }
+
+function form_pracownik_ustaw_klienta()
+{
+	$tab=array();
+	$pole= new form_input;
+	$pole->set_params('klient',in_type::hidden,'klient','klient',null, null);
+	$tab[]=$pole;	
+}
+
+function dform_wyswietl_narzedzia($response)
+{
+	$tab=array();
+	$pole= new form_input;
+	$pole->set_params('narzedzie',in_type::hidden,'narzedzie',$response[1],null,$response[0]);
+	$tab[]=$pole;
+	return $tab;	
+}
+
+function dform_wyswietl_uzytkownika($response)
+{
+	$tab=array();
+	$pole= new form_input;
+	$pole->set_params('uzytkownik',in_type::hidden,'uzytkownik',$response[3],null,$response[0]);
+	$tab[]=$pole;
+	return $tab;	
+}
+
+function dform_pracownik_wypozyczenia_uz($response)
+{
+	$tab=array();
+	$pole= new form_input;
+	$pole->set_params('hidden_id',in_type::hidden,'narzedzie',$response[2],null,$response[0]);
+	$tab[]=$pole;
+	$pole= new form_input;
+	$pole->set_params('hidden_data',in_type::hidden,'data',$response[3],null,null);
+	$tab[]=$pole;
+	return $tab;
+}
+
+
+
 
 function form_pracownik_pokaz_wypozyczenia()
 {

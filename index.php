@@ -17,7 +17,7 @@
  
 
    //echo $innnn['name'];
-   
+   /* spawszanie waznosci sesji*/
     try{
 	if(!empty($_POST['login'])&&!empty($_POST['pass'])){
 		zaloguj();
@@ -38,9 +38,16 @@
    if(isset($_SESSION['nazwa']) && isset($_SESSION['typ']))
    {
    
+   /*wyswietlanie menu w zalesnosci od typu uzytkownika*/
    if($_SESSION['typ']==0)menu_admin();
    if($_SESSION['typ']==1)menu_prac();
    if($_SESSION['typ']==2)menu_uz();
+   
+   /*****************************************************************/
+   /********************** kod dla uzytkownika **********************/
+   /*****************************************************************/
+   /*****************************************************************/
+   
    
    if(!empty($_GET['action'])&&$_SESSION['typ']==2)
    {
@@ -63,7 +70,10 @@
 				if($ilosc>0){
    		   			while ($rekord=mysql_fetch_row($wynik))
    		   			{
-   		   				wyswietl_narzedzia($rekord);
+   		   				form_start("index.php?action=pokaz","post");
+  						$form=dform_wyswietl_narzedzia($rekord);
+  						form_wyswietl($form);
+  						form_stop("pokaż");
 		   			}
 				}
 				else{
@@ -72,6 +82,14 @@
    		    }
            break;
 		//wyśietlenie narzędzia  
+	    case 'wypozyczone':
+			$uz=uzytkownik_id($_SESSION['nazwa'])
+;			$lista=lista_wypozyczen($uz);
+			foreach ($lista as $rekord) {
+				uz_wypozyczone($rekord);
+			}
+			
+		break;
 		case 'pokaz':
 			
 			form_start("index.php?action=szukaj","post");
@@ -79,9 +97,9 @@
   			form_wyswietl($form);
   			form_spawdz($form);
   			form_stop("szukaj");
-		   if(!empty($_GET['narzedzie']))
+		   if(!empty($_POST['narzedzie']))
 		   {
-		   		$wynik=mysql_query("SELECT * FROM `narzedzie` WHERE `id`=".$_GET['narzedzie']); 
+		   		$wynik=mysql_query("SELECT * FROM `narzedzie` WHERE `id`=".$_POST['narzedzie']); 
 		   		$ilosc=mysql_num_rows($wynik);
 		   		if($ilosc>0){
 					while ($rekord=mysql_fetch_row($wynik))
@@ -97,38 +115,175 @@
            
    		}
    }
+
+
+   /*****************************************************************/
+   /*********************** kod dla pracownika **********************/
+   /*****************************************************************/
+   /*****************************************************************/
    
    if(!empty($_GET['action'])&&$_SESSION['typ']==1)
    {
 	switch ($_GET['action']) {
-		case 'szukaj':
-			form_start("index.php?action=szukaj","post");
-  			$form=form_szukaj_narzedzia();
-  			form_wyswietl($form);
-  			form_spawdz($form);
-  			form_stop("szukaj");
+			case 'szukaj':
+			 form_start("index.php?action=szukaj","post");
+  			 $form=form_szukaj_narzedzia();
+  			 form_wyswietl($form);
+  			 form_spawdz($form);
+  			 form_stop("szukaj");
+   		   
+   		   if(!empty($_POST['szukaj_narzedzia']))
+		   {
+		   		echo "wyniki dla zapytania :\"";
+		   		echo $_POST['szukaj_narzedzia']."\"<br/>";
+   		   		//$wynik=mysql_query("SELECT * FROM `narzedzie` WHERE `nazwa` LIKE '".$_POST['szukaj_narzedzia']."'");
+   		   		$wynik=mysql_query($sql = "SELECT `narzedzie`.`id`,`narzedzie`.`nazwa`, MIN(`wypozyczenie`.`do`) FROM `narzedzie` LEFT JOIN `wypozyczenie` ON `wypozyczenie`.`narzedzie`=`narzedzie`.`id` WHERE `nazwa` LIKE '%".$_POST['szukaj_narzedzia']."%' GROUP BY `narzedzie`.`id` "); 
+				$ilosc=mysql_num_rows($wynik);
+				if($ilosc>0){
+   		   			while ($rekord=mysql_fetch_row($wynik))
+   		   			{
+   		   				$status=1;
+						//spawdzanie czy wybarano uzytkownika i narzedzie jest dostepne 
+						//0000-00-00 00:00:00 narzęzie poza magazynem 
+   		   				if($rekord[2]=='0000-00-00 00:00:00') $status=0;
+   		   				
+   		   				if(isset($_SESSION['uz']) && $status) 		   				
+   		   					form_start("index.php?action=wypozycz","post");
+						else{
+							form_start("index.php?action=pokaz","post");
+						}
+  						$form=dform_wyswietl_narzedzia($rekord);
+  						form_wyswietl($form);
+						
+						if(isset($_SESSION['uz'])&&$status) 		   				
+   		   					form_stop("wypozycz");
+						else{
+							form_stop("pokaż");
+						}
+  						
+		   			}
+				}
+				else{
+					echo "brak wyników";
+				}
+   		    }
 			break;
 		case 'klient':
 			form_start("index.php?action=klient","post");
   			$form=form_pracownik_wybierz_klienta();
   			form_wyswietl($form);
   			form_spawdz($form);
-  			form_stop("zdefiniuj");
+  			form_stop("szukaj");
+			if(isset($_SESSION['uz']))
+			{
+				$klient=uzytkownik_nazwa($_SESSION['uz']);
+				echo 'klient :'.$klient.'<br/>';
+				echo 'lista wypożyczeń <br/>';
+				$lista=lista_wypozyczen($_SESSION['uz']);
+				foreach ($lista as $rekord) {
+					form_start("index.php?action=zwroc","post");
+  					$form =	dform_pracownik_wypozyczenia_uz($rekord);
+  					form_wyswietl($form);
+  					form_spawdz($form);
+  					form_stop("zwróć");
+				}
+			}
+  			if(!empty($_POST['klient']))
+		   		{
+		   			echo "wyniki dla zapytania :\"";
+		   			echo $_POST['klient']."\"<br/>";
+   		   		    $wynik=mysql_query("SELECT * FROM `uzytkownik` WHERE `nazwa` LIKE '%".$_POST['klient']."%' AND `uprawnienia` = 2"); 
+				    $ilosc=mysql_num_rows($wynik);
+				    if($ilosc>0){
+   		   			while ($rekord=mysql_fetch_row($wynik))
+   		   			{
+   		   				form_start("index.php?action=definiuj_klijenta","post");
+  						$form=	dform_wyswietl_uzytkownika($rekord);
+  						form_wyswietl($form);
+  						form_spawdz($form);
+  						form_stop("ustaw");
+		   			}
+				}
+				else{
+					echo "brak wyników";
+				}
+   		    }
+  			
 			break;
-		case 'pokaz_wypozyczenia':
-			form_start("index.php?action=pokaz_wypozyczenia","post");
-  			$form=form_pracownik_pokaz_wypozyczenia();
-  			//form_wyswietl($form);
-  			//form_spawdz($form);
-  			//form_stop("pokaż");
+		case 'definiuj_klijenta':
+			if(!empty($_POST['uzytkownik']))
+			{
+				 $wynik=mysql_query("SELECT * FROM `uzytkownik` WHERE `id` = ".$_POST['uzytkownik']." AND `uprawnienia` = 2"); 
+				 $ilosc=mysql_num_rows($wynik);
+				 $nazwa="";
+				 $id="";
+				    if($ilosc>0){
+   		   				while ($rekord=mysql_fetch_row($wynik))
+						{
+							$nazwa=$rekord[3];
+							$id=$rekord[0];
+						}
+						echo "ustawiono ".$nazwa;
+						$_SESSION['uz']=$id;	
+					}
+			}
+		break;
+		case 'wypozycz':
+			if(!empty($_POST['narzedzie']))
+			{
+				if(isset($_SESSION['uz']))
+				{
+					$status=wpisz_wypozyczenie();
+					if($status==1)
+					{
+					    echo "nie dodano";	
+					}
+					else
+					{
+						echo "dodano do listy";	
+						form_start("index.php?action=szukaj","post");
+  			 			$form=form_szukaj_narzedzia();
+  			 			form_wyswietl($form);
+  						form_spawdz($form);
+  			 			form_stop("szukaj");		
+					}
+				}
+			}
+		break;
+		case 'zwroc':
+			if(!empty($_POST['narzedzie']))
+			{
+				
+				if(isset($_SESSION['uz']))
+				{
+					$status=zwroc_wypozyczenie();
+					if($status==1)
+					{
+						echo "nie zwrócono";
+					}
+					else
+					{
+						echo "zwrócono narzędzie";
+						form_start("index.php?action=szukaj","post");
+  			 			$form=form_szukaj_narzedzia();
+  			 			form_wyswietl($form);
+  						form_spawdz($form);
+  			 			form_stop("szukaj");		
+					}
+				}
+			}
 			break;
-		
 		default:
 			
 			break;
 	}
-	
+
    }
+
+   /*****************************************************************/
+   /********************** kod dla admistratora *********************/
+   /*****************************************************************/
+   /*****************************************************************/
    
    if(!empty($_GET['action'])&&$_SESSION['typ']==0)
    {
