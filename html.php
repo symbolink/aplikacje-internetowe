@@ -6,9 +6,15 @@
 		return $str;
 	}
 	
-    function przycisk_menu($target,$text)
+    function przycisk_menu($target,$text,$id=null)
 	{
-		$str='<a href="'.$target.'"> '.$text.' </a>';
+		$strid='';
+		if($id!=null) 
+		{
+			$strid='id="'.$id.'"';
+		}
+		
+		$str='<a href="'.$target.'"'.$strid.'>'.$text.' </a>';
 		return $str;
 	}
 
@@ -28,8 +34,8 @@
 		echo '<div class="menu">';	
 		echo przycisk_menu('index.php?action=szukaj', 'szukaj narzedzia');
 		echo przycisk_menu('index.php?action=wypozyczone', 'twoje wypożyczenia');
-		echo przycisk_menu('index.php?action=konto', 'ustawienia konta');
-		echo przycisk_menu('index.php?action=wyloguj', 'wyloguj');
+		echo przycisk_menu('index.php?action=haslo', 'zmiana hasła');
+		echo przycisk_menu('index.php?action=wyloguj', 'wyloguj','ulog');
 		echo '<div>';
 	}
 	
@@ -38,8 +44,8 @@
 		echo '<div class="menu">';	
 		echo przycisk_menu('index.php?action=klient', 'klient');
 		echo przycisk_menu('index.php?action=szukaj', 'szukaj narzedzia');
-		echo przycisk_menu('index.php?action=pokaz_wypozyczenia', 'pokaż wypożyczenia');
-		echo przycisk_menu('index.php?action=wyloguj', 'wyloguj');
+		echo przycisk_menu('index.php?action=dodaj', 'dodaj narzedzie');
+		echo przycisk_menu('index.php?action=wyloguj', 'wyloguj','ulog');
 		echo '<div>';
 	}
 	
@@ -49,7 +55,7 @@
 		echo przycisk_menu('index.php?action=dodaj_uz', 'dodaj uzytkownika');
 		echo przycisk_menu('index.php?action=dodaj_polke', 'dodaj półkę');
 		echo przycisk_menu('index.php?action=dodaj_hale', 'dodaj halę');
-		echo przycisk_menu('index.php?action=wyloguj', 'wyloguj');
+		echo przycisk_menu('index.php?action=wyloguj', 'wyloguj','ulog');
 		echo '<div>';
 	}
 	
@@ -60,5 +66,16 @@
 		echo '<div class="lista1">'.$rekord[2].'</div>';
 		echo '<div class="lista2">'.$rekord[3].'</div>'; 
 	}
+	
+	function szablon_top()
+	{
+		echo file_get_contents('szab_c1.inc');
+	}
+	
+	function szablon_bottom()
+	{
+		echo file_get_contents('szab_c2.inc');
+	}
+	
 	
 ?>

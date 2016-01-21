@@ -1,0 +1,80 @@
+body
+{
+	background-color: #fff;
+}
+
+header
+{
+	background-image: url(logo.png);
+	display: block;
+	height: 170px;
+	background-repeat: no-repeat;
+	width: 544px;
+	margin: 0 auto 0 auto;	
+}
+
+
+nav{
+	display: block;
+	height: 24px;
+	background-image: url(nav.png); 
+	padding-top: 6px;
+}
+
+nav a{
+	text-decoration: none;
+	color:#ffffff; 
+	font-size: 24px;
+	text-shadow: #2222ff 0px 0px 5px;
+	font-family: sans-serif;
+	margin-left: 10px; 
+	border-radius: 10px;
+	padding-left:10px;
+	padding-right:10px;
+	background-color:#55bbFF;
+}
+
+#ulog{
+	position:relative;
+	color: #55bbFF;
+	float: right;
+	margin-right: 20px;
+	text-shadow: #000000 0px 0px 0px;
+	background-color: #ffffff;
+}
+
+footer{
+	color:#ffffff;
+	background-image: url(stopka.png);
+	height: 31px;
+}
+
+input{
+	border-radius: 5px;
+}
+
+input:hover {
+	background-color: #55bbFF;
+}
+
+.normal{
+	color:#ffffff;
+	background-color:#0088ff; 
+	border-radius: 5px;
+}
+
+#tresc{
+	width:980px;
+	border: 10px solid #0088ff;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+#konterner
+{
+	margin: 0 auto 0 auto;
+	width: 1000px;
+	display: block;
+}
+
+

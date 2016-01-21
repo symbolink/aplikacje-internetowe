@@ -88,6 +88,22 @@ class form_element
 	
 	public function disp_filed(){echo 'abstract';}
 	//abstract public function validate(); 
+	public function valid()
+	{
+		$err=null;
+		$index=$this->get_name();
+		try{
+		if(!empty($_POST[$index]))
+		{
+				$err=null;
+		}
+		else
+			 $err=$this->get_label();
+		}
+		catch(Exception $e){
+		}
+		return $err;
+	}
 		
 	public function show()
 	{
@@ -99,6 +115,10 @@ class form_element
 		if($display=='next'){echo'<br/>'; }//sposób wyświtlania pól obok siebie lub pod sobą 
 		else{echo ' ';} 
 	}
+	
+	
+	
+	
 }
 
 class form_input extends form_element
@@ -123,17 +143,81 @@ class form_input extends form_element
 		echo '/>';
 	}
 	
-	public function valid()
-	{
-		$index=$this->get_name();
-		try{
-		if(!empty($_POST[$index]));
-		}
-		catch(Exception $e){
-			
-		}
-		}
+	// public function valid()
+	// {
+		// $veryfy=null;
+		// $index=$this->get_name();
+		// try{
+		// if(!empty($_POST[$index]))
+			// $veryfy=TRUE;
+		// else
+			// $veryfy=FALSE;
+		// }
+		// catch(Exception $e){
+// 			
+		// }
+	// }
 }
+
+class form_select extends form_element
+{
+	private $op_name=null;
+	
+	private function set_opname($value)
+	{
+		$this->op_name=$value;	
+	}
+	
+	private function get_opname()
+	{
+		return $this->op_name;
+	}
+	
+	
+	public function set_params($id,$name,$label,$display,$value,$option)
+	{
+		$this->set_id($id);
+		$this->set_name($name);
+		$this->set_label($label);
+		$this->set_display($display);
+		$this->set_value($value);
+		$this->set_opname($option);
+	}
+	public function disp_filed()
+	{
+		$values=$this->get_value();
+		$options=$this->get_opname();
+		$valsize=sizeof($values);
+		$valoptions=sizeof($options);
+		$iter_to=0;
+		if($valsize<$valoptions)
+			$iter_to=$valsize;
+		else 
+			$iter_to=$valoptions;
+		
+		echo '<select id="'.$this->get_id().'" ';
+		echo 'name="'.$this->get_name().'"> ';
+		for($ii=0;$ii<$iter_to;$ii++) 
+		{ 
+   			echo '<option value="'.$values[$ii].'">'.$options[$ii].'</option>';  
+		}		
+		echo '</select>';
+	}
+	
+	// public function valid()
+	// {
+		// $index=$this->get_name();
+		// try{
+		// if(!empty($_POST[$index]));
+		// }
+		// catch(Exception $e){
+// 			
+		// }
+	// }
+}
+
+
+
 
 
 function form_wyswietl($tab)
@@ -146,10 +230,17 @@ function form_wyswietl($tab)
 
 function form_spawdz($tab)
 {
+	$err_tab=array();
 	foreach($tab as $pole) 
-	{ 
-   		$pole->valid();
+	{
+		$val=$pole->valid();
+   		if($val!=null)
+		{
+			$err_tab[]=$val;
+		}
+		
 	}		
+	return $err_tab;
 }
 
 
@@ -181,6 +272,9 @@ function form_admin_doadaj_uzytkownika()
 {
 	$tab=array();
 	$pole= new form_input;
+	$pole->set_params('dane',in_type::text,'dane','dane osobowe',null, null);
+	$tab[]=$pole;
+	$pole= new form_input;
 	$pole->set_params('nazwa_uz',in_type::text,'nazwa_uz','nazwa uzytkownika',null, null);
 	$tab[]=$pole;
 	$pole= new form_input;
@@ -188,6 +282,14 @@ function form_admin_doadaj_uzytkownika()
 	$tab[]=$pole;
 	$pole= new form_input;
 	$pole->set_params('pass2',in_type::password,'pass2','potwierdz hało',null, null);
+	$tab[]=$pole;
+	$pole= new form_input;
+	$pole->set_params('kontakt',in_type::password,'kontakt','kontakt',null, null);
+	$tab[]=$pole;
+	$pole= new form_select;
+	$values=array('typ1','typ2');
+	$option=array('pracownik','użytkownik');
+	$pole->set_params('typ','typ','typ użytkownika',null,$values,$option);
 	$tab[]=$pole;
 	return $tab;
 }
@@ -199,7 +301,7 @@ function form_admin_doadaj_polke()
 	$pole->set_params('nazwa_pk',in_type::text,'nazwa_pk','nazwa półki',null, null);
 	$tab[]=$pole;
 	$pole= new form_input;
-	$pole->set_params('hala',in_type::password,'hala','hala',null, null);
+	$pole->set_params('hala',in_type::text,'hala','hala',null, null);
 	$tab[]=$pole;
 	return $tab;	
 }
@@ -229,6 +331,22 @@ function form_pracownik_ustaw_klienta()
 	$pole->set_params('klient',in_type::hidden,'klient','klient',null, null);
 	$tab[]=$pole;	
 }
+
+function form_pracownik_dodaj_narzedzie ()
+{
+	$tab=array();
+	$pole= new form_input;
+	$pole->set_params('nazwa',in_type::text,'nazwa','nazwa narzędzia',null, null);
+	$tab[]=$pole;	
+	$pole= new form_input;
+	$pole->set_params('hala',in_type::text,'hala','hala',null, null);
+	$tab[]=$pole;
+	$pole= new form_input;
+	$pole->set_params('polka',in_type::text,'polka','pólka',null, null);
+	$tab[]=$pole;
+	return $tab;
+}
+
 
 function dform_wyswietl_narzedzia($response)
 {
@@ -260,21 +378,25 @@ function dform_pracownik_wypozyczenia_uz($response)
 	return $tab;
 }
 
-
+function form_zmien_haslo()
+{
+	$pole= new form_input;
+	$pole->set_params('passold',in_type::text,'passold','stare hasło',null, null);
+	$tab[]=$pole;	
+	$pole= new form_input;
+	$pole->set_params('pass1',in_type::password,'pass1','nowe hasło',null, null);
+	$tab[]=$pole;
+	$pole= new form_input;
+	$pole->set_params('pass2',in_type::password,'pass2','powtórz hasło',null, null);
+	$tab[]=$pole;
+	return $tab;
+}
 
 
 function form_pracownik_pokaz_wypozyczenia()
 {
 		echo "jeszcze nie gotowe";
 }
-
-
-
-
-
-
-
-
 
 
 ?>

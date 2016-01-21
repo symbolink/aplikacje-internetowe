@@ -22,8 +22,8 @@
 	{
 		return $_SESSION['typ'];	
 	}
-	
-	
+
+
 	
 	
 ?>
